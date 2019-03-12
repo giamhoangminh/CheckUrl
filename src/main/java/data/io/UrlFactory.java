@@ -8,15 +8,22 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import connect.httpconnection.HttpConnect;
+import connect.mysqlconnection.ConnectionPoolManager;
 import connect.mysqlconnection.MysqlConnection;
 import data.model.UrlModel;
 import properties.MyProperties;
 
 public class UrlFactory {
+	public static final Logger LOG = LogManager.getLogger(HttpConnect.class);
 	//ghi lần lượt dữ liệu ra file
 	public static void writeOutPutToFile2(UrlModel url, String path)
 	{
@@ -98,28 +105,27 @@ public class UrlFactory {
 		return arr;
 	}
 	//lay data tu database
-	public static ArrayList<UrlModel> getDataInDatabase() {
-		
+	public static ArrayList<UrlModel> getDataInDatabase(ConnectionPoolManager pool) {
 		ArrayList<UrlModel> arr = new ArrayList<UrlModel>();
 		ResultSet resultSet = null;
 		try {
 			String inputTable = MyProperties.getProperty("inputTable");
-			Statement statement = (Statement) MysqlConnection.getConnection().createStatement();
+			
+			Connection con = pool.getConnection();
+			Statement statement = (Statement) con.createStatement();
 			resultSet = statement.executeQuery("select * from " + inputTable);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
+			LOG.debug("connect to "+ inputTable + " to get data");
 		    while(resultSet.next()){
 		    	UrlModel url = new UrlModel();
 		    	url.setUrl(resultSet.getString(1));
 		    	arr.add(url);
 		    }
 		    resultSet.close();
-			MysqlConnection.freeConnection();
+			pool.returnConnection(con);
+			LOG.debug(" connection is returned to pool");
 		} catch (Exception e) {
-		    e.printStackTrace();
+			LOG.error(e);
+		    //e.printStackTrace();
 		}
 		return arr;
 	}
@@ -130,27 +136,37 @@ public class UrlFactory {
 			String outputTable = MyProperties.getProperty("outputTable");
 			Statement statement = (Statement) MysqlConnection.getConnection().createStatement();
 			String sql = "insert into " + outputTable +" values(";
+			
 			for( UrlModel u : arr) {
 				//insert
 				sql += u.getUrl() + "," + u.getTime() + "," + u.getTimeResponse().toString() + "," + u.getResponseCode() + ")";
 				statement.executeUpdate(sql);
 			}
+			LOG.debug("connect to database to save data");
+			
 			statement.close();
 			MysqlConnection.freeConnection();
+			
+			LOG.debug("closed connection");
 		}catch(Exception e) {
-			e.printStackTrace();
+			LOG.error(e);
+			//e.printStackTrace();
 		}
 	}
 	
 	//luu data vao database tung url 
-	public static void saveUrl(UrlModel u) {
+	public static void saveUrl(UrlModel u, ConnectionPoolManager pool) {
 		try {
-			Statement statement = (Statement) MysqlConnection.getConnection().createStatement();
+			Connection con = pool.getConnection();
+			Statement statement = (Statement) con.createStatement();
 			String sql = "insert ignore into ListUrl values( '" + u.getUrl() + "','" + u.getTime() + "','" + u.getTimeResponse().toString() + "','" + u.getResponseCode() + "')";
 			statement.executeUpdate(sql);
+			LOG.debug("connect to database to save data");
 			statement.close();
-			MysqlConnection.freeConnection();
+			pool.returnConnection(con);
+			LOG.debug("closed connection");
 		}catch(Exception e) {
+			LOG.error(e);
 			e.printStackTrace();
 		}
 	}

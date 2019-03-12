@@ -4,9 +4,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import data.model.UrlModel;
 
 public class HttpConnect {
+	public static final Logger LOG = LogManager.getLogger(HttpConnect.class);
+	
 	public static void connect(UrlModel u)
 	{
 		try
@@ -15,7 +20,8 @@ public class HttpConnect {
 			String url = u.getUrl();
 			URL obj = new URL(url);
 			t1 = System.currentTimeMillis();
-			HttpURLConnection con = (HttpURLConnection) obj.openConnection();				con.setRequestMethod("GET");
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
 			u.setResponseCode(con.getResponseCode());
 			t2 = System.currentTimeMillis();
 			Date date = new Date(t1);
@@ -24,7 +30,7 @@ public class HttpConnect {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			LOG.error(e);
 		}
 	}
 }

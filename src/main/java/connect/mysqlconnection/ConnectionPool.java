@@ -8,7 +8,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ConnectionPool {
+	public static final Logger LOG = LogManager.getLogger(ConnectionPool.class);
+	
 	private static long expiredTime ;
 	private static int connectionPoolSize;
 	
