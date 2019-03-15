@@ -1,34 +1,35 @@
 package threadpool;
 
-import data.io.UrlFactory;
-//import data.io.URLFactory;
+import data.io.UrlDatabaseFactory;
 import data.model.UrlModel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import connect.httpconnection.HttpConnect;
-import connect.mysqlconnection.ConnectionPoolManager;
+import connect.httpconnection.HttpConnection;
+import connect.httpconnection.WarningMessage;
 
 public class ThreadPool implements Runnable {
 	public static final Logger LOG = LogManager.getLogger(ThreadPool.class);
 	UrlModel url;
-	ConnectionPoolManager pool;
+	UrlDatabaseFactory urlFactory;
 	public void run() {
 		try {
-			HttpConnect.connect(url);
+			HttpConnection httpConnection = new HttpConnection();
+			httpConnection.connect(url);
 			LOG.debug("connect to url");
 			System.out.println(url);
-			UrlFactory.saveUrl(url,pool);
+			urlFactory.saveUrl(url);
 			LOG.debug("Save data");
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(e);
+			WarningMessage.sendMessage(e.getMessage());
 			}
 	}
-	public ThreadPool(UrlModel url, ConnectionPoolManager pool)
+	public ThreadPool(UrlModel url, UrlDatabaseFactory urlFactory)
 	{
 		this.url = url;
-		this.pool = pool;
+		this.urlFactory = urlFactory;
 	}
 }
 

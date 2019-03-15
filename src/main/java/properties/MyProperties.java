@@ -15,15 +15,18 @@ public class MyProperties {
 		try {
 		FileOutputStream fileOutputStream = new FileOutputStream("config.properties");
 		
-		properties.put("threadPoolSize", "4"); // số thread, số url trong 1 lần chạy
-		properties.put("timeOut", "20");  // thời gian sống của 1 thread đơn vị giây
-		properties.put("url", "jdbc:mysql://localhost:3306/ListUrl");//kết nối mysql
-		properties.put("user", "giamhm"); 
-		properties.put("password", "giamhm1997");
-		properties.put("inputTable", "listUrlInput");// bảng lưu dữ liệu đầu vào
-		properties.put("outputTable", "ListUrl");// bảng lưu kết quả
-		properties.put("connectionPoolSize", "4");
-		properties.put("expiredTime","3000");
+		properties.put("threadPoolSize", "4"); // number of Thread in thread Pool
+		properties.put("timeOut", "20");  // number of second a Thread live
+		properties.put("url", "jdbc:mysql://localhost:3306/ListUrl");//url connect to mysql
+		properties.put("user", "giamhm"); // user to connect mysql
+		properties.put("password", "giamhm1997"); // password of user
+		properties.put("inputTable", "listUrlInput");// input Table
+		properties.put("outputTable", "ListUrl");// Output Table
+		properties.put("connectionPoolSize", "4");// number of connection initialized
+	//	properties.put("expiredTime","3000");
+		properties.put("bot_token", "610226108:AAFhWEIpIDNv5RFgKsH3rTdPd7jPQz2s_os"); //token of telegram bot
+		properties.put("id_chat", "749661859"); //id of chat to send warning
+		
 		properties.store(fileOutputStream, "");
 		LOG.info("Lưu properties");
 		fileOutputStream.close();
@@ -32,7 +35,7 @@ public class MyProperties {
 		}
 	}
 	
-	public static void writeProperty(String key, String value) {
+	public void writeProperty(String key, String value) {
 		Properties properties = new Properties();
 		try {
 			FileInputStream fileInputStream = new FileInputStream("config.properties");
@@ -47,7 +50,7 @@ public class MyProperties {
 		}
 	}
 	
-	public static String getProperty(String key) {
+	public String getProperty(String key) {
 		String value = "";
 		
 		Properties properties = new Properties();

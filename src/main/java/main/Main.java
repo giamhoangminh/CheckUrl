@@ -1,4 +1,4 @@
-package test;
+package main;
 
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -8,42 +8,48 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import connect.httpconnection.WarningMessage;
 import connect.mysqlconnection.ConnectionPoolManager;
-import data.io.UrlFactory;
+import data.io.UrlDatabaseFactory;
 import data.model.UrlModel;
 import properties.MyProperties;
 import threadpool.ThreadPool;
 
-public class Test {
-	public static final Logger LOG = LogManager.getLogger(Test.class);
+public class Main {
+	public static final Logger LOG = LogManager.getLogger(Main.class);
 	
 	public static void main(String[] args) {
 		// get properties
+		MyProperties myProperties = new MyProperties();
+		
 		int numThread = 0, time = 0, poolSize = 0;
-		numThread = Integer.parseInt(MyProperties.getProperty("threadPoolSize"));
-		time = Integer.parseInt(MyProperties.getProperty("timeOut"));
-		poolSize = Integer.parseInt(MyProperties.getProperty("connectionPoolSize"));
+		numThread = Integer.parseInt(myProperties.getProperty("threadPoolSize"));
+		time = Integer.parseInt(myProperties.getProperty("timeOut"));
+		poolSize = Integer.parseInt(myProperties.getProperty("connectionPoolSize"));
 		
 		String url, user, password;
 		
-		url = MyProperties.getProperty("url");
-		user = MyProperties.getProperty("user");
-		password = MyProperties.getProperty("password");
+		url = myProperties.getProperty("url");
+		user = myProperties.getProperty("user");
+		password = myProperties.getProperty("password");
+		
 		// create a connectionPool
 		ConnectionPoolManager pool = new ConnectionPoolManager(url, user, password, poolSize);
-
+		UrlDatabaseFactory urlFactory = new UrlDatabaseFactory(pool);
+		
 		ArrayList<UrlModel> arr = new ArrayList<UrlModel>();
-		arr = UrlFactory.getDataInDatabase(pool);
+		arr = urlFactory.readData();
 		
 		ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(100);
 		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(numThread, numThread, time, TimeUnit.SECONDS, queue);
 		
 		int i =0 ;
-		while(i < 10000) {
+		WarningMessage.sendMessage("start");
+		while(i < 10) {
 			i++;
 			for(UrlModel u : arr)
 			{
-				threadPoolExecutor.execute(new ThreadPool(u,pool));
+				threadPoolExecutor.execute(new ThreadPool(u, urlFactory));
 			}
 			try {
 				Thread.sleep(10000);
@@ -51,5 +57,8 @@ public class Test {
 				LOG.error(e);
 			}
 		}
+		pool.freeConnectionPool();
+		//send message "end"
+		WarningMessage.sendMessage("end");
 	}
 }

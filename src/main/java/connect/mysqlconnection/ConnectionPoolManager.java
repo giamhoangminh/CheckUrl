@@ -7,12 +7,13 @@ import java.util.Vector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import connect.httpconnection.WarningMessage;
+
 public class ConnectionPoolManager {
 	public static final Logger LOG = LogManager.getLogger(ConnectionPoolManager.class);
 	private String url;
 	private String user;
 	private String password;
-//	private int expiredTime ;
 	private int poolSize ;
 	
 	public ConnectionPoolManager(String url, String user, String password, int poolSize) {
@@ -27,12 +28,14 @@ public class ConnectionPoolManager {
 	private static Vector<Connection> connectionPool = new Vector<Connection>();
 	
 	public ConnectionPoolManager() {
+		// initialize connection pool
 		initialize();
 	}
 	
 	private void initialize() {
 		while(!checkPoolIsFull()) {
 			int i = 1;
+			//create a new connection and add to Pool
 			connectionPool.addElement(createANewConnection());
 			LOG.debug("create connection " + i);
 			i++;
@@ -46,7 +49,7 @@ public class ConnectionPoolManager {
 		}
 		return true;
 	}
-	//tạo mới 1 connection vào p
+	//create a new connection
 	private Connection createANewConnection() {
 		Connection con = null ;
 		
@@ -59,11 +62,12 @@ public class ConnectionPoolManager {
 			LOG.debug("connect to mysql");
 		}catch (Exception e) {
 			LOG.error(e);
+			WarningMessage.sendMessage(e.getMessage());
 		}
 		
 		return con;
 	}
-	// lấy connection khỏi pool để dùng
+	// get connection from Pool
 	public synchronized Connection getConnection() throws InterruptedException {
 		Connection con = null;
 		if(connectionPool.size() > 0) {
@@ -76,11 +80,12 @@ public class ConnectionPoolManager {
 		}
 		return con;
 	}
-	// trả connection về pool
+	// return connection back to pool
 	public synchronized void returnConnection(Connection con) {
 		connectionPool.addElement(con);
 	}
 	
+	// close every connection in Pool
 	public void freeConnectionPool() {
 		while(connectionPool.size() > 0) {
 			int i = 0;
@@ -92,6 +97,7 @@ public class ConnectionPoolManager {
 				LOG.debug("connecetion " + i + "is closed");
 			}catch (Exception e) {
 				LOG.error(e);
+				WarningMessage.sendMessage(e.getMessage());
 			}
 			i++;
 		}
