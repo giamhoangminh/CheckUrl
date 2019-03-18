@@ -31,7 +31,6 @@ public class HttpConnection {
 			
 			//time get response
 			t2 = System.currentTimeMillis();
-			
 			// set time for url model
 			Date date = new Date(t1);
 			u.setTime(date.toString());

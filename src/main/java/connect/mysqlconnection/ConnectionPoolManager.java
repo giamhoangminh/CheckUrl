@@ -11,6 +11,7 @@ import connect.httpconnection.WarningMessage;
 
 public class ConnectionPoolManager {
 	public static final Logger LOG = LogManager.getLogger(ConnectionPoolManager.class);
+	
 	private String url;
 	private String user;
 	private String password;
@@ -20,7 +21,6 @@ public class ConnectionPoolManager {
 		this.url = url;
 		this.user = user;
 		this.password = password;
-//		this.expiredTime = expiredTime;
 		this.poolSize = poolSize;
 		initialize();
 	}

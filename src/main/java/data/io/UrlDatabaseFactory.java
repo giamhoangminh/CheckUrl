@@ -23,48 +23,48 @@ public class UrlDatabaseFactory implements UrlFactoryInterface {
 		this.pool = pool;
 	}
 // save url checked to database
-	public void saveUrl(UrlModel u) {
-		// TODO Auto-generated method stub
-		try {
-			Connection con = pool.getConnection();
-			Statement statement = (Statement) con.createStatement();
+	public void saveUrl(UrlModel u) throws InterruptedException {
+		Connection con = pool.getConnection();
+		try (Statement statement = (Statement) con.createStatement()){
 			String sql = "insert ignore into ListUrl values( '" + u.getUrl() + "','" + u.getTime() + "','" + u.getTimeResponse().toString() + "','" + u.getResponseCode() + "')";
 			statement.executeUpdate(sql);
 			LOG.debug("connect to database to save data");
-			statement.close();
-			pool.returnConnection(con);
-			LOG.debug("closed connection");
+			LOG.debug("closed statement");
 		}catch(Exception e) {
 			LOG.error(e);
 			WarningMessage.sendMessage(e.getMessage());
+		}
+		finally {
+			pool.returnConnection(con);
+			LOG.debug(" connection is returned to pool");
 		}
 	}
 	// insert a url to database (input data)
-	public void insertUrl(String url) {
-		try {
-			Connection con = pool.getConnection();
-			Statement statement = (Statement) con.createStatement();
+	public void insertUrl(String url) throws InterruptedException {
+		Connection con = pool.getConnection();
+		try (Statement statement = (Statement) con.createStatement()){
 			String sql = "insert ignore into listUrlInput(url) values( '" + url + "');";
 			statement.executeUpdate(sql);
-			statement.close();
-			pool.returnConnection(con);
-			LOG.debug("closed connection");
+			LOG.debug("closed statement");
 		}catch(Exception e) {
 			LOG.error(e);
 			WarningMessage.sendMessage(e.getMessage());
+		}finally {
+			pool.returnConnection(con);
+			LOG.debug(" connection is returned to pool");
 		}
 	}
 // get url from database
-	public ArrayList<UrlModel> readData() {
+	public ArrayList<UrlModel> readData() throws InterruptedException {
 		// TODO Auto-generated method stub
 		ArrayList<UrlModel> arr = new ArrayList<UrlModel>();
 		ResultSet resultSet = null;
-		try {
+		
+		Connection con = pool.getConnection();
+		try (Statement statement = (Statement) con.createStatement()){
 			MyProperties myProperties = new MyProperties();
 			String inputTable = myProperties.getProperty("inputTable");
 			
-			Connection con = pool.getConnection();
-			Statement statement = (Statement) con.createStatement();
 			resultSet = statement.executeQuery("select * from " + inputTable);
 			LOG.debug("connect to "+ inputTable + " to get data");
 		    while(resultSet.next()){
@@ -73,28 +73,30 @@ public class UrlDatabaseFactory implements UrlFactoryInterface {
 		    	arr.add(url);
 		    }
 		    resultSet.close();
-			pool.returnConnection(con);
-			LOG.debug(" connection is returned to pool");
+			LOG.debug("closed statement");
 		} catch (Exception e) {
 			LOG.error(e);
 		    WarningMessage.sendMessage(e.getMessage());
+		}finally {
+			pool.returnConnection(con);
+			LOG.debug(" connection is returned to pool");
 		}
 		return arr;
 	}
 	// delete url in database
-	public void deleteUrl(String url) {
-		try {
+	public void deleteUrl(String url) throws InterruptedException {
 			Connection con = pool.getConnection();
-			Statement statement = (Statement) con.createStatement();
+			try(Statement statement = (Statement) con.createStatement()) {
 			statement.executeUpdate("delete from ListUrl where url = '" +url +"'");
 			statement.executeUpdate("delete from listUrlInput where url = '" +url +"'");
-			statement.close();
-			pool.returnConnection(con);
-			LOG.debug("closed connection");
+			LOG.debug("closed statement");
 		}catch(Exception e) {
 			LOG.error(e);
 			WarningMessage.sendMessage(e.getMessage());
-		}		
+		}
+			finally {
+				pool.returnConnection(con);
+			}
 	}
 
 }

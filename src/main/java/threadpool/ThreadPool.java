@@ -18,7 +18,7 @@ public class ThreadPool implements Runnable {
 			HttpConnection httpConnection = new HttpConnection();
 			httpConnection.connect(url);
 			LOG.debug("connect to url");
-			System.out.println(url);
+	//		System.out.println(url);
 			urlFactory.saveUrl(url);
 			LOG.debug("Save data");
 		} catch (Exception e) {

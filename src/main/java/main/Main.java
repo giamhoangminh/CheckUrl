@@ -18,7 +18,9 @@ import threadpool.ThreadPool;
 public class Main {
 	public static final Logger LOG = LogManager.getLogger(Main.class);
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
+		long t1, t2;
+		t1 = System.currentTimeMillis();
 		// get properties
 		MyProperties myProperties = new MyProperties();
 		
@@ -59,6 +61,9 @@ public class Main {
 		}
 		pool.freeConnectionPool();
 		//send message "end"
-		WarningMessage.sendMessage("end");
+		t2 = System.currentTimeMillis() - t1;
+		System.out.println("done " + t2);
+		WarningMessage.sendMessage("end" + t2/100);
+
 	}
 }

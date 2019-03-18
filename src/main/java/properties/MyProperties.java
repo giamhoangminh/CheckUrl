@@ -24,8 +24,8 @@ public class MyProperties {
 		properties.put("outputTable", "ListUrl");// Output Table
 		properties.put("connectionPoolSize", "4");// number of connection initialized
 	//	properties.put("expiredTime","3000");
-		properties.put("bot_token", "610226108:AAFhWEIpIDNv5RFgKsH3rTdPd7jPQz2s_os"); //token of telegram bot
-		properties.put("id_chat", "749661859"); //id of chat to send warning
+		properties.put("bot_token", "610226108:AAENjU0imx9e-5uya0Myw-PtHHjFHDe7mc0"); //token of telegram bot
+		properties.put("id_chat", "-398773035"); //id of chat to send warning
 		
 		properties.store(fileOutputStream, "");
 		LOG.info("Lưu properties");
